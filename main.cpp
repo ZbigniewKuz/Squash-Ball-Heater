@@ -38,13 +38,13 @@ void loop() {
   //sprawdzamy czy czujniki sa zamkniete
   if(przerwanieStan == HIGH && krancowkaStan == HIGH){
   
-    if((temp > temperatura+2) || (temp <= temperatura+2)){
-
-      digitalWrite(zalaczenieZasilaniaNaGrzalke, HIGH);
-    }
-    else{
+     if(temp > temperatura+2){
 
       digitalWrite(zalaczenieZasilaniaNaGrzalke, LOW);
+    }
+    else if(temp <= temperatura-2){
+
+      digitalWrite(zalaczenieZasilaniaNaGrzalke, HIGH);
 
     }
   }
