@@ -14,7 +14,7 @@ int przerwanieStan = 0;
 int krancowkaStan = 0;
 
 //zadana temperatura przez uzytkownika
-float temperatura = 40.5;
+float temperaturaZadana = 40.5;
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,18 +31,18 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  float temp = dht.readTemperature();
+  float temperaturaOdczytana = dht.readTemperature();
   przerwanieStan = digitalRead(przerwanie);
   krancowkaStan = digitalRead(krancowka);
   //sprawdzamy czy temperatura jest w zakresie gdzie musimy grzac
   //sprawdzamy czy czujniki sa zamkniete
   if(przerwanieStan == HIGH && krancowkaStan == HIGH){
   
-     if(temp > temperatura+2){
+     if(temperaturaOczytana > temperaturaZadana+2){
 
       digitalWrite(zalaczenieZasilaniaNaGrzalke, LOW);
     }
-    else if(temp <= temperatura-2){
+    else if(temperaturaOdczytana <= temperaturaZadana-2){
 
       digitalWrite(zalaczenieZasilaniaNaGrzalke, HIGH);
 
