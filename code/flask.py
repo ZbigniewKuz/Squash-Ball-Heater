@@ -1,4 +1,5 @@
 
+
 # A very simple Flask Hello World app for you to get started with...
 from sqlalchemy.orm.attributes import flag_modified
 from flask import Flask, redirect, render_template, request, jsonify, abort, flash
@@ -164,6 +165,14 @@ def update_machine(machine_id):
 
     return machine_schema.jsonify(machine)
 
+@app.route('/machine/update_status/<machine_id>', methods=['PUT'])
+def update_status_machine(machine_id):
+    machine = Machine.query.get(machine_id)
+    status = request.json['status']
+    machine.status = status
+    db.session.commit()
+
+    return machine_schema.jsonify(machine)
 
 @app.route("/users", methods=["GET"])
 def get_all_users():
@@ -191,4 +200,4 @@ def add_user():
 
 @app.route('/')
 def hello_world():
-    return 'Podgrzewacz do piłki do squasha, wpisz w adresie /users aby zobaczyć uzytkowników lub /users/id="wybrane_id" aby znaleźć użytkowanika o wybranym id'
+    return 'Podgrzewacz do piłki do squasha       wpisz w adresie /users aby zobaczyć uzytkowników /users/"id" aby znaleźć użytkowanika o wybranym id analogicznie z /machines , /machine/id oraz /actions /action/id'
