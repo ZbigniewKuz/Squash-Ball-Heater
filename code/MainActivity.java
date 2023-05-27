@@ -2,6 +2,7 @@ package com.example.ballheater;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -20,6 +21,7 @@ import javax.net.ssl.HttpsURLConnection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -33,7 +35,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable runnable;
-    int delay = 4000;
+    int delay = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
         Request request = new Request.Builder()
                 .url(url)
-                .put(body) //PUT
+                .put(body)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -161,7 +163,38 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             JSONObject obj = new JSONObject(response_body);
                             String temperature = obj.getString("action_temperature");
-                            present_temperature.setText(temperature);
+                            String temperatureCutted = temperature.substring(0,4);
+                            String celcjus = " °C";
+                            present_temperature.setText(temperatureCutted + celcjus );
+                        }
+                        catch (JSONException e){
+
+                        }
+                    }
+                });
+                Request request2 = new Request.Builder().url("http://zbigniewk.pythonanywhere.com/machine/1").build();
+                OkHttpClient okHttpClient2 = new OkHttpClient();
+                Button btn = (Button) findViewById(R.id.start_stop);
+                okHttpClient2.newCall(request2).enqueue(new Callback() {
+
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        btn.setTextColor(Color.BLACK);
+
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String response_body = response.body().string();
+                        try {
+                            JSONObject obj = new JSONObject(response_body);
+                            String status = obj.getString("status");
+                            if(status == "true"){
+                                btn.setBackgroundColor(Color.GREEN);
+                            }
+                            else{
+                                btn.setBackgroundColor(Color.RED);
+                            }
                         }
                         catch (JSONException e){
 
