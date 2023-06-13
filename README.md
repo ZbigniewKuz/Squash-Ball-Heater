@@ -1,9 +1,8 @@
 # Squash-Ball-Heater
-## Link do Flask`a: </br>
-### <a href="http://zbigniewk.pythonanywhere.com/" target="_blank">Flask</a></br>
-#### Program sterujący załączaniem grzałki w Main.cpp</br>
-#### Podgląd aplikacji na android</br>
+Project of Squash ball heater based on ESP32 module connected to Rest-API in Flask </br>
+Device is controlled by android application also connected to Rest-API</br>
+#### Android aplication</br>
 ![aplikacja](aplikacja.png)
-#### Podgląd zamodelowanego korpusu</br>
+#### Body model</br>
 ![Korpus1](korpus1.png)
 
