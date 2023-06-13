@@ -5,8 +5,10 @@
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
 #include <string>
+#include <ezButton.h>
 
 using namespace std;
+
 
 const char* ssid = "FunBox2-0755";
 const char* password = "6F31A7CDFFA3A25DED94FDC69F";
@@ -25,15 +27,25 @@ unsigned long timerDelay = 4000;
 DHT dht(4, DHT22);
 
 //zadeklarowanie czujnikĂłw przerwania i kraĹ„cĂłwki
-const int przerwanie = 5;
+const int IRbreak_pin = 5;
+ezButton limitSwitch(18);
 
 //const int krancowka = 5;
 const int zalaczenieZasilaniaNaGrzalke = 2;
 
-//wartosci czujnikow
-//int przerwanieStan = 0;
+//diody do swiecenia
 
-//int krancowkaStan = 0;
+const int diodaWlaczania = 32;
+
+const int diodaGrzanie = 25;
+
+//wartosci czujnikow
+int IRbreak_state = 0;
+
+int limiter_state = 0;
+
+int lim = 0;
+int br = 0;
 
 //odczytana temperatura z czytnika
 float temperaturaOdczytana = 0;
@@ -49,10 +61,16 @@ void setup() {
   
   dht.begin();
   delay(2000);
-  pinMode(przerwanie, INPUT);
 
-  //pinMode(krancowka, INPUT);
+  // beam break sensor
+  pinMode(IRbreak_pin, INPUT);
+  digitalWrite(IRbreak_pin, HIGH);
+
   pinMode(zalaczenieZasilaniaNaGrzalke, OUTPUT);
+  limitSwitch.setDebounceTime(50);
+
+  pinMode(diodaWlaczania, OUTPUT);
+  pinMode(diodaGrzanie, OUTPUT);
 
   Serial.begin(115200);
 
@@ -69,8 +87,15 @@ void setup() {
 }
 
 void loop() {
+  limitSwitch.loop();
   //odczyt danych z czujnikĂłw
   temperaturaOdczytana = dht.readTemperature();
+  Serial.println("temp odczytana");
+  Serial.println(temperaturaOdczytana);
+  if (temperaturaOdczytana != temperaturaOdczytana){
+        temperaturaOdczytana = 10.55;
+        Serial.println(temperaturaOdczytana);
+      }
   //co 4 sek get request
   if ((millis() - lastTime) > timerDelay) {
     if(WiFi.status()== WL_CONNECTED){
@@ -100,6 +125,7 @@ void loop() {
         if(i == 3){
           status = bool(value);
         }
+        
       }
       Serial.print("Status = ");
       Serial.println(status);
@@ -117,25 +143,37 @@ void loop() {
     }
     lastTime = millis();
   }
-  
- // czujnikPrzerwaniaStan = digitalRead(przerwanie);
-  //krancowkaStan = digitalRead(krancowka);
  
   delay(1000);
  
   //sprawdzamy czy temperatura jest w zakresie gdzie musimy grzac
   //sprawdzamy czy czujniki sa zamkniete
+  IRbreak_state = digitalRead(IRbreak_pin);
+  limiter_state = limitSwitch.getState();
 
-  if((temperaturaOdczytana > tempGetArr[2]+2)||(status == 0)){
-
-    digitalWrite(zalaczenieZasilaniaNaGrzalke, LOW);
+  if(status == 1){
+    digitalWrite(diodaWlaczania,HIGH);
   }
-  else if((temperaturaOdczytana <= tempGetArr[2]-2)&&(status == 1)){
-
-    digitalWrite(zalaczenieZasilaniaNaGrzalke, HIGH);
-
+  else if(status == 0){
+    digitalWrite(diodaWlaczania,LOW);
   }
- 
+
+  if((IRbreak_state == LOW)&&(limiter_state == LOW)){
+    if((temperaturaOdczytana > tempGetArr[2]+2)||(status == 0)){
+      digitalWrite(zalaczenieZasilaniaNaGrzalke, LOW);
+      digitalWrite(diodaGrzanie, LOW);
+
+    }
+    else if((temperaturaOdczytana <= tempGetArr[2]-2)&&(status == 1)){
+      digitalWrite(zalaczenieZasilaniaNaGrzalke, HIGH);
+      digitalWrite(diodaGrzanie,HIGH);
+
+    }
+  }
+  else{
+   digitalWrite(zalaczenieZasilaniaNaGrzalke, LOW);
+   digitalWrite(diodaGrzanie, LOW);
+  }
 }
 
 String getRequest(const char* serverName) {
