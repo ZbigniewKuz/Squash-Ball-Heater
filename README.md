@@ -6,4 +6,5 @@ Device is controlled by android application also connected to Rest-API</br>
 #### Body model</br>
 ![Korpus1](korpus1.png)
 ![Korpus2](korpus2.png)
-
+#### Wiring diagram</br>
+![Schemat](Schema.jpeg)
